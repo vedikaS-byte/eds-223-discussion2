@@ -60,6 +60,62 @@ tm_shape(county) + tm_fill(col = "black") + # basemap
 tm_shape(birds_protected_join) + tm_dots()
 ```
 
+### Find PAs within 15km of Goleta
+
+Find the protected areas within 15 km of a city in Santa Barbara County
+Hint: Use dplyr::filter() to select a city from sb_city_boundaries
+```{r}
+# First, check units
+st_crs(protected_areas)$units # Not in km! Need to be careful
+
+# Perform buffer around just goleta by subsetting first
+# str(city)
+goleta <- city %>% filter(NAME == "Goleta")
+
+# Define a buffer
+#?st_buffer()
+buffer <- st_buffer(goleta, dist = 15000) # 15*1000
+
+```
+
+Explore different outputs for #3 with st_intersects(), st_intersection(), and st_within()
+
+```{r}
+intersection <- st_intersection(protected_areas, buffer)
+  
+within <- st_within(protected_areas, buffer)
+
+intersect <- st_intersects(protected_areas, buffer)
+```
+
+
+Practice a distance-based join with st_is_within_distance()
+```{r}
+#?st_is_within_distance()
+# We can perform a spatial joinn between protected areas and goleta based on areas almost touching the two sf objects
+protected_goleta_distance <- st_join(protected_areas, goleta, fun = st_is_within_distance, dist = 15000)
+```
+
+
+### Find distance between Goleta and Dangermond Preserve
+Find the distance between your city of choice and a protected area of your choice, using the geometries’ edges and the centroid.
+
+```{r}
+montecito <- city %>% filter(NAME == "Montecito")
+#protected_areas$UNIT_NAME
+# We have our desired city, but now we also need the preserve
+#str(protected_areas)
+hot_springs <- protected_areas %>% 
+  filter(UNIT_NAME == "Hot Springs Canyon")
+```
+
+```{r}
+# Find the distance WITHOUT centroid
+distance <- st_distance(montecito, hot_springs)
+
+# Find distance WITH centroid (must convert first)
+centroid_distance <- st_distance(st_centroid(montecito), st_centroid(hot_springs))
+```
 
 
 
