@@ -4,7 +4,7 @@ format: html
 ---
 
 # Week 2: Discussion Section
-## Working with vector types
+## Working with vector operations
 
 ### Load the neccessary libraries
 ```{r}
@@ -14,4 +14,54 @@ library(tidyverse)
 library(sf)
 library(tmap)
 ```
+
+### Read in data (shape files)
+Esure a unique coordinate reference system (CRS) is used. Here, we will use NAD 1983 Lambert North America for all spatial datasets.
+
+```{r}
+#| include: false
+protected_areas <- st_read(here("data","data", "cpad_super_units_sb.shp")) %>% 
+  st_transform("ESRI:102009")
+
+city <- st_read(here("data", "data", "sb_city_boundaries_2003.shp")) %>% 
+  st_transform("ESRI:102009")
+
+county <- st_read(here("data", "data", "sb_county_boundary_2020.shp")) %>%
+  st_transform("ESRI:102009")
+
+birds <- st_read(here("data","data", "aves_observations_2020_2024.shp")) %>% 
+  st_transform("ESRI:102009")
+```
+
+
+### Find bird observations within PAs in Santa Barbara County
+
+Find how many bird observations are within protected areas in Santa Barbara County and show how your output differs with a spatial subset versus a spatial join
+
+```{r}
+# We can use x[y,] to grab the observations associated with birds in protected_areas 
+birds_protected <- protected_areas[birds,]
+dim(birds_protected) # There are 35 birds in the protected areas
+
+tm_shape(county) + tm_fill(col = "black") + # basemap 
+  tm_shape(protected_areas) + tm_polygons(fill = "tan") +
+tm_shape(birds_protected) + tm_dots()
+```
+
+```{r}
+# Now perform spatial join for both attribute and spatial data
+?st_join()
+
+# join protected areas to birds
+birds_protected_join <- st_join(birds, protected_areas)
+
+tm_shape(county) + tm_fill(col = "black") + # basemap 
+  tm_shape(protected_areas) + tm_polygons(fill = "tan") +
+tm_shape(birds_protected_join) + tm_dots()
+```
+
+
+
+
+
 
