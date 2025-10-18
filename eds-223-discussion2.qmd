@@ -1,0 +1,17 @@
+---
+title: "eds-223-discussion2"
+format: html
+---
+
+# Week 2: Discussion Section
+## Working with vector types
+
+### Load the neccessary libraries
+```{r}
+#| include: false
+library(here)
+library(tidyverse)
+library(sf)
+library(tmap)
+```
+
